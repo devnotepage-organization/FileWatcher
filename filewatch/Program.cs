@@ -12,8 +12,8 @@ namespace filewatch
 {
     internal class Program
     {
-        public static string DstDir = @"C:\FileWatcher";
-        public static string WatchDir = @"C:\Target";
+        public static string DstDir = @"C:\_FileWatcher";
+        public static string WatchDir = @"C:\_FileTarget";
         static void Main(string[] args)
         {
             var watcher = new FileWatcher();
