@@ -17,14 +17,18 @@ namespace filewatch
         static void Main(string[] args)
         {
             var watcher = new FileWatcher();
+            var creator = new FileCreator();
             watcher.AddWatch(watchDir);
             for (; ; )
             {
                 Console.WriteLine("Enter path...");
                 string cmd = Console.ReadLine();
-                if (cmd == "exit") { break; } else if (cmd == "quit") { break; }
+                if (cmd == "exit") { break; }
+                else if (cmd == "quit") { break; }
+                else if (cmd == "test") { creator.Start(); continue; }
                 watcher.AddWatch(cmd);
             }
+            creator.Stop();
         }
     }
 }
@@ -75,12 +79,12 @@ public class FileWatcher
                     }
                     catch (IOException ex)
                     {
-                        if (retryCount > 999999999)
+                        if (retryCount > 99)
                         {
                             Console.Error.WriteLine(ex.ToString());
                             break;
                         }
-                        Console.WriteLine("retry...");
+                        Console.WriteLine("retry...{0}", retryCount);
                     }
                 }
             }
@@ -88,6 +92,41 @@ public class FileWatcher
         catch (Exception ex)
         {
             Console.Error.WriteLine(ex.ToString());
+        }
+    }
+}
+
+public class FileCreator
+{
+    private System.Timers.Timer timer = null;
+    public void Start()
+    {
+        if (timer == null)
+        {
+            timer = new System.Timers.Timer();
+            timer.Interval = (5 * 1000);
+            timer.Elapsed += (s, e) =>
+            {
+                // ファイル作成削除テスト
+                string fileName = "test_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt";
+                string filePath = Path.Combine(Program.watchDir, fileName);
+                using (var writer = new StreamWriter(filePath))
+                {
+                    writer.WriteLine("aaa");
+                }
+                File.Delete(filePath);
+            };
+        }
+        if (timer != null)
+        {
+            timer.Start();
+        }
+    }
+    public void Stop()
+    {
+        if (timer != null)
+        {
+            timer.Stop();
         }
     }
 }
